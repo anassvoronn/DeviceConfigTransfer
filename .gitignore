@@ -36,3 +36,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/input/device_config.json
+/input/device_config_generated.json
