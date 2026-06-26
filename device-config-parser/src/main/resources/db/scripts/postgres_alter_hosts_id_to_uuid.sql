@@ -1,0 +1,3 @@
+ALTER TABLE hosts
+    ALTER COLUMN id TYPE UUID
+    USING id::uuid;

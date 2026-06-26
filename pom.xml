@@ -17,6 +17,7 @@
     <modules>
         <module>device-config-producer</module>
         <module>device-config-consumer</module>
+        <module>device-config-parser</module>
     </modules>
 
     <properties>

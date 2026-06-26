@@ -1,0 +1,3 @@
+ALTER TABLE services
+ADD COLUMN members jsonb DEFAULT NULL,
+ADD COLUMN comments VARCHAR(255);

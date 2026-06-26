@@ -5,7 +5,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: device_config
+      POSTGRES_DB: TaskWithJSONFile
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     networks:
@@ -67,9 +67,26 @@ services:
     volumes:
       - ./output:/output
     container_name: device-config-consumer
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - kafka
+    networks:
+      - my_shared_network
+
+  parser:
+    build:
+      context: ./device-config-parser
+      dockerfile: Dockerfile
+    volumes:
+      - ./output:/output
+    container_name: device-config-parser
     ports:
       - "8081:8081"
     environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/TaskWithJSONFile
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
       - kafka

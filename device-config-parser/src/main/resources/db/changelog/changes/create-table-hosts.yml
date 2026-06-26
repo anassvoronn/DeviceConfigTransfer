@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-hosts-table
+      author: nastya
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_init.sql
+            splitStatements: false
+  - changeSet:
+      id: add-members-column
+      author: nastya
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_members_column_to_hosts.sql
+            splitStatements: false
+  - changeSet:
+      id: create-policies-table
+      author: nastya
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_create_policies_table.sql
+            splitStatements: false
+  - changeSet:
+      id: create-services-table
+      author: nastya
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_create_services_table.sql
+            splitStatements: false
+  - changeSet:
+      id: add-columns-in-services
+      author: nastya
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_add_columns_in_services.sql
+            splitStatements: false
+  - changeSet:
+      id: alter-text-to-varchar-250
+      author: nastya
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_alter_text_to_varchar_250.sql
+            splitStatements: false
+  - changeSet:
+      id: add-index-to-hosts
+      author: nastya
+      runInTransaction: false
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_add_index_to_hosts.sql
+            splitStatements: false
+  - changeSet:
+      id: create-interfaces-table
+      author: nastya
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_create_interfaces_table.sql
+            splitStatements: false
+  - changeSet:
+      id: alter-hosts-id-to-uuid
+      author: nastya
+      changes:
+        - sqlFile:
+            path: classpath:db/scripts/postgres_alter_hosts_id_to_uuid.sql
+            splitStatements: false
