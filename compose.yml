@@ -49,6 +49,7 @@ services:
       context: ./device-config-producer
       dockerfile: Dockerfile
     volumes:
+      - maven-repo:/root/.m2
       - ./input:/input
     container_name: device-config-producer
     ports:
@@ -65,6 +66,7 @@ services:
       context: ./device-config-consumer
       dockerfile: Dockerfile
     volumes:
+      - maven-repo:/root/.m2
       - ./output:/output
     container_name: device-config-consumer
     environment:
@@ -79,6 +81,7 @@ services:
       context: ./device-config-parser
       dockerfile: Dockerfile
     volumes:
+      - maven-repo:/root/.m2
       - ./output:/output
     container_name: device-config-parser
     ports:
