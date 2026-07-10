@@ -6,12 +6,12 @@ spring:
 
     consumer:
       properties:
-        fetch.max.bytes: 900000000
-        max.partition.fetch.bytes: 900000000
+        spring.json.value.default.type: org.nastya.dto.DeviceConfigChunk
+        spring.json.trusted.packages: "*"
       group-id: device-config-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 
 kafka:
   topic:
@@ -19,3 +19,4 @@ kafka:
 
 configs:
   output-directory: /output
+  temp-directory: /tmp/chunks

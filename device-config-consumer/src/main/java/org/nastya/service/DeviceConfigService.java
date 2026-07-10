@@ -36,10 +36,7 @@ public class DeviceConfigService {
             log.info("File [{}] saved to output", fileName);
 
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Failed to save file " + fileName,
-                    e
-            );
+            throw new RuntimeException("Failed to save file " + fileName, e);
         }
     }
 }
