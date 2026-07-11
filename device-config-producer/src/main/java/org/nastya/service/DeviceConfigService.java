@@ -1,6 +1,7 @@
 package org.nastya.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.nastya.dto.DeviceConfigChunk;
 import org.nastya.kafka.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,18 @@ import java.util.stream.Stream;
 public class DeviceConfigService {
     private final KafkaProducerService kafkaProducer;
     private final String configsDirectory;
+    private final ZipService zipService;
+    private final ChunkService chunkService;
 
     public DeviceConfigService(
             KafkaProducerService kafkaProducer,
-            @Value("${configs.input-directory}") String configsDirectory) {
+            @Value("${configs.input-directory}") String configsDirectory,
+            ZipService zipService,
+            ChunkService chunkService) {
         this.kafkaProducer = kafkaProducer;
         this.configsDirectory = configsDirectory;
+        this.zipService = zipService;
+        this.chunkService = chunkService;
     }
 
     public List<String> getAvailableConfigs() {
@@ -41,15 +48,12 @@ public class DeviceConfigService {
             return configs;
 
         } catch (IOException e) {
-            throw new IllegalStateException(
-                    "Failed to access configs directory: " + configsDirectory,
-                    e
-            );
+            throw new IllegalStateException("Failed to access configs directory: " + configsDirectory, e);
         }
     }
 
     public void sendConfig(String fileName) throws FileNotFoundException {
-        log.info("Sending config file [{}] to Kafka", fileName);
+        log.info("Sending config [{}]", fileName);
 
         Path file = Path.of(configsDirectory, fileName);
 
@@ -58,24 +62,17 @@ public class DeviceConfigService {
         }
 
         try {
-            byte[] content = Files.readAllBytes(file);
+            byte[] zipBytes = zipService.zip(file);
 
-            kafkaProducer.send(
-                    fileName,
-                    content
-            );
+            List<DeviceConfigChunk> chunks = chunkService.split(fileName, zipBytes);
 
-            log.info(
-                    "Config file [{}] successfully sent to Kafka, size [{} bytes]",
-                    fileName,
-                    content.length
-            );
+            for (DeviceConfigChunk chunk : chunks) {
+                kafkaProducer.send(chunk);
+            }
 
+            log.info("Config [{}] compressed to {} bytes and sent in {} chunk(s)", fileName, zipBytes.length, chunks.size());
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Failed to read file " + fileName,
-                    e
-            );
+            throw new RuntimeException("Failed to send file " + fileName, e);
         }
     }
 }

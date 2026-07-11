@@ -3,13 +3,15 @@ spring:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     producer:
       properties:
-        max.request.size: 900000000
-        buffer.memory: 900000000
+        spring.json.add.type.headers: false
+        max.request.size: ${KAFKA_MAX_MESSAGE_SIZE}
+        buffer.memory: ${KAFKA_BUFFER_MEMORY}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 configs:
   input-directory: /input
+  chunk-size: ${CHUNK_SIZE}
 
 kafka:
   topic:

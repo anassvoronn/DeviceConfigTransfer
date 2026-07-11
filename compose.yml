@@ -37,8 +37,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_MESSAGE_MAX_BYTES: 900000000
-      KAFKA_REPLICA_FETCH_MAX_BYTES: 900000000
+      KAFKA_MESSAGE_MAX_BYTES: 1048576
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 1048576
     volumes:
       - kafka_data:/bitnami/kafka
     networks:
@@ -55,6 +55,10 @@ services:
       - "8080:8080"
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_DEVICE_CONFIG_TOPIC: device-config-topic
+      KAFKA_MAX_MESSAGE_SIZE: 1048576
+      KAFKA_BUFFER_MEMORY: 33554432
+      CHUNK_SIZE: 770000
     depends_on:
       - kafka
     networks:
