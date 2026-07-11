@@ -62,9 +62,9 @@ public class ChunkAssembler {
         }
     }
 
-    public Path assemble(UUID transferId) {
+    public Path assemble(UUID transferUuid) {
         try {
-            Path transferDirectory = tempDirectory.resolve(transferId.toString());
+            Path transferDirectory = tempDirectory.resolve(transferUuid.toString());
 
             Path zipFile = transferDirectory.resolve("archive.zip");
 
@@ -91,7 +91,6 @@ public class ChunkAssembler {
 
     public void cleanup(UUID transferId) {
         try {
-
             Path transferDirectory = tempDirectory.resolve(transferId.toString());
 
             if (!Files.exists(transferDirectory)) {

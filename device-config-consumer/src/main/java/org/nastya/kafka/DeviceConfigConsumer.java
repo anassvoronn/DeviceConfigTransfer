@@ -31,21 +31,21 @@ public class DeviceConfigConsumer {
         try {
             log.info("Received chunk {}/{} for [{}]", chunk.chunkIndex() + 1, chunk.totalChunks(), chunk.fileName());
 
-            Optional<UUID> transfer = assembler.addChunk(chunk);
+            Optional<UUID> transferUuidOptional = assembler.addChunk(chunk);
 
-            if (transfer.isEmpty()) {
+            if (transferUuidOptional.isEmpty()) {
                 return;
             }
 
-            UUID transferId = transfer.get();
+            UUID transferUuid = transferUuidOptional.get();
 
-            Path zipFile = assembler.assemble(transferId);
+            Path zipFile = assembler.assemble(transferUuid);
 
             byte[] json = zipService.unzip(Files.readAllBytes(zipFile));
 
             service.saveConfig(chunk.fileName(), json);
 
-            assembler.cleanup(transferId);
+            assembler.cleanup(transferUuid);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to process config file", e);
         }
