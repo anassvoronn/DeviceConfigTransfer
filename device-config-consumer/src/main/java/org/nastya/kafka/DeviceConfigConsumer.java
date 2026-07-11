@@ -3,6 +3,7 @@ package org.nastya.kafka;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nastya.dto.DeviceConfigChunk;
+import org.nastya.exception.ConsumerProcessingException;
 import org.nastya.service.ChunkAssembler;
 import org.nastya.service.DeviceConfigService;
 import org.nastya.service.ZipService;
@@ -28,26 +29,31 @@ public class DeviceConfigConsumer {
             groupId = "${spring.kafka.consumer.group-id}"
     )
     public void consume(DeviceConfigChunk chunk) {
+        UUID transferUuid = null;
         try {
             log.info("Received chunk {}/{} for [{}]", chunk.chunkIndex() + 1, chunk.totalChunks(), chunk.fileName());
 
-            Optional<UUID> transfer = assembler.addChunk(chunk);
+            Optional<UUID> transferUuidOptional = assembler.addChunk(chunk);
 
-            if (transfer.isEmpty()) {
+            if (transferUuidOptional.isEmpty()) {
                 return;
             }
 
-            UUID transferId = transfer.get();
+            transferUuid = transferUuidOptional.get();
 
-            Path zipFile = assembler.assemble(transferId);
+            Path zipFile = assembler.assemble(transferUuid);
 
-            byte[] json = zipService.unzip(Files.readAllBytes(zipFile));
+            Path jsonFile = zipService.unzip(zipFile, service.getOutputDirectory());
 
-            service.saveConfig(chunk.fileName(), json);
+            service.logSavedConfig(jsonFile);
 
-            assembler.cleanup(transferId);
+            log.info("Config [{}] saved to {}", jsonFile.getFileName(), jsonFile);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to process config file", e);
+            throw new ConsumerProcessingException("Failed to process config file", e);
+        } finally {
+            if (transferUuid != null) {
+                assembler.cleanup(transferUuid);
+            }
         }
     }
 }

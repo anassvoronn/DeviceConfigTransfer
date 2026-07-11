@@ -45,3 +45,4 @@ build/
 /.idea/vcs.xml
 /input/device_config_test.json
 /output/device_config_test.json
+/output/device_config_generated.json
