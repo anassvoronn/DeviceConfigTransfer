@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-22 AS builder
+FROM maven:3.9.16-eclipse-temurin-26 AS builder
 WORKDIR /app
 COPY pom.xml .
 RUN --mount=type=cache,target=/root/.m2 \
