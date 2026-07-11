@@ -1,28 +1,34 @@
 package org.nastya.kafka;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nastya.dto.DeviceConfigChunk;
 import org.nastya.exception.ConsumerProcessingException;
 import org.nastya.service.ChunkAssembler;
-import org.nastya.service.DeviceConfigService;
 import org.nastya.service.ZipService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class DeviceConfigConsumer {
 
     private final ChunkAssembler assembler;
     private final ZipService zipService;
-    private final DeviceConfigService service;
+    private final String outputDirectory;
+
+    public DeviceConfigConsumer(ChunkAssembler assembler,
+                                ZipService zipService,
+                                @Value("${configs.output-directory}") String outputDirectory) {
+        this.assembler = assembler;
+        this.zipService = zipService;
+        this.outputDirectory = outputDirectory;
+    }
+
 
     @KafkaListener(
             topics = "${kafka.topic.device-config}",
@@ -43,9 +49,7 @@ public class DeviceConfigConsumer {
 
             Path zipFile = assembler.assemble(transferUuid);
 
-            Path jsonFile = zipService.unzip(zipFile, service.getOutputDirectory());
-
-            service.logSavedConfig(jsonFile);
+            Path jsonFile = zipService.unzip(zipFile, Path.of(outputDirectory));
 
             log.info("Config [{}] saved to {}", jsonFile.getFileName(), jsonFile);
         } catch (Exception e) {
