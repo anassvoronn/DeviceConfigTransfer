@@ -36,12 +36,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
-/input/device_config.json
-/input/device_config_generated.json
+/input/*
+/output/*
 /.idea/.gitignore
-/output/device_config.json
 /.idea/encodings.xml
 /.idea/misc.xml
 /.idea/vcs.xml
-/input/device_config_test.json
-/output/device_config_test.json
