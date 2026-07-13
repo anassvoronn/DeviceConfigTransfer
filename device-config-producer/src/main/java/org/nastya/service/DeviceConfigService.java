@@ -2,6 +2,7 @@ package org.nastya.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.nastya.dto.DeviceConfigChunk;
+import org.nastya.exception.ProducerProcessingException;
 import org.nastya.kafka.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class DeviceConfigService {
             return configs;
 
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to access configs directory: " + configsDirectory, e);
+            throw new ProducerProcessingException("Failed to access configs directory: " + configsDirectory, e);
         }
     }
 
@@ -72,7 +73,7 @@ public class DeviceConfigService {
 
             log.info("Config [{}] compressed to {} bytes and sent in {} chunk(s)", fileName, zipBytes.length, chunks.size());
         } catch (IOException e) {
-            throw new RuntimeException("Failed to send file " + fileName, e);
+            throw new ProducerProcessingException("Failed to send file " + fileName, e);
         }
     }
 }

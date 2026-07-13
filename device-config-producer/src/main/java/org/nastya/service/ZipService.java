@@ -13,17 +13,16 @@ import java.util.zip.ZipOutputStream;
 public class ZipService {
 
     public byte[] zip(Path file) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        try (ZipOutputStream zip = new ZipOutputStream(baos)) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ZipOutputStream zip = new ZipOutputStream(baos)) {
 
             zip.putNextEntry(new ZipEntry(file.getFileName().toString()));
 
             Files.copy(file, zip);
 
             zip.closeEntry();
-        }
 
-        return baos.toByteArray();
+            return baos.toByteArray();
+        }
     }
 }

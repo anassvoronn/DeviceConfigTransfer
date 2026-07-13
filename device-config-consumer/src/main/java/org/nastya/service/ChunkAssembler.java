@@ -2,6 +2,7 @@ package org.nastya.service;
 
 import org.nastya.dto.DeviceConfigChunk;
 import org.nastya.dto.TransferState;
+import org.nastya.exception.ConsumerProcessingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +59,7 @@ public class ChunkAssembler {
             return Optional.empty();
 
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to save chunk", e);
+            throw new ConsumerProcessingException("Failed to save chunk", e);
         }
     }
 
@@ -85,7 +86,7 @@ public class ChunkAssembler {
             return zipFile;
 
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to assemble archive", e);
+            throw new ConsumerProcessingException("Failed to assemble archive", e);
         }
     }
 
@@ -110,7 +111,7 @@ public class ChunkAssembler {
             transfers.remove(transferId);
 
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to cleanup temporary files", e);
+            throw new ConsumerProcessingException("Failed to cleanup temporary files", e);
         }
     }
 }
