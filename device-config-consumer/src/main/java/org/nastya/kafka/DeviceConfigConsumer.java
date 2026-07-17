@@ -17,14 +17,14 @@ import java.util.UUID;
 @Slf4j
 public class DeviceConfigConsumer {
 
-    private final ChunkAssembler assembler;
+    private final ChunkAssembler chunkAssembler;
     private final ZipService zipService;
     private final String outputDirectory;
 
     public DeviceConfigConsumer(ChunkAssembler assembler,
                                 ZipService zipService,
                                 @Value("${configs.output-directory}") String outputDirectory) {
-        this.assembler = assembler;
+        this.chunkAssembler = assembler;
         this.zipService = zipService;
         this.outputDirectory = outputDirectory;
     }
@@ -38,7 +38,7 @@ public class DeviceConfigConsumer {
         try {
             log.info("Received chunk {}/{} for [{}]", chunk.chunkIndex() + 1, chunk.totalChunks(), chunk.fileName());
 
-            Optional<UUID> transferUuidOptional = assembler.addChunk(chunk);
+            Optional<UUID> transferUuidOptional = chunkAssembler.addChunk(chunk);
 
             if (transferUuidOptional.isEmpty()) {
                 return;
@@ -46,7 +46,7 @@ public class DeviceConfigConsumer {
 
             transferUuid = transferUuidOptional.get();
 
-            Path zipFile = assembler.assemble(transferUuid);
+            Path zipFile = chunkAssembler.assemble(transferUuid);
 
             Path jsonFile = zipService.unzip(zipFile, Path.of(outputDirectory));
 
@@ -55,7 +55,7 @@ public class DeviceConfigConsumer {
             throw new ConsumerProcessingException("Failed to process config file", e);
         } finally {
             if (transferUuid != null) {
-                assembler.cleanup(transferUuid);
+                chunkAssembler.cleanup(transferUuid);
             }
         }
     }
