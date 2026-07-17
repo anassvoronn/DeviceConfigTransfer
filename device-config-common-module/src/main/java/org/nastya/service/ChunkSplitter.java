@@ -2,8 +2,6 @@ package org.nastya.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.nastya.dto.DeviceConfigChunk;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,11 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Service
-public class ChunkService {
+public class ChunkSplitter {
     private final int chunkSize;
 
-    public ChunkService(@Value("${configs.chunk-size}") int chunkSize) {
+    public ChunkSplitter(int chunkSize) {
         this.chunkSize = chunkSize;
     }
 

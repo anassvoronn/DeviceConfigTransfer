@@ -2,9 +2,6 @@ package org.nastya.service;
 
 import org.nastya.dto.DeviceConfigChunk;
 import org.nastya.dto.TransferState;
-import org.nastya.exception.ConsumerProcessingException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,15 +15,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service
 public class ChunkAssembler {
-
     private final Map<UUID, TransferState> transfers = new ConcurrentHashMap<>();
     private final Path tempDirectory;
 
-    public ChunkAssembler(
-            @Value("${configs.temp-directory}") String tempDirectory) {
-        this.tempDirectory = Path.of(tempDirectory);
+    public ChunkAssembler(Path tempDirectory) {
+        this.tempDirectory = tempDirectory;
     }
 
     public Optional<UUID> addChunk(DeviceConfigChunk chunk) {
@@ -59,7 +53,7 @@ public class ChunkAssembler {
             return Optional.empty();
 
         } catch (IOException e) {
-            throw new ConsumerProcessingException("Failed to save chunk", e);
+            throw new UncheckedIOException("Failed to save chunk " + chunk.chunkIndex() + " for transfer " + chunk.transferId(), e);
         }
     }
 
@@ -86,7 +80,7 @@ public class ChunkAssembler {
             return zipFile;
 
         } catch (IOException e) {
-            throw new ConsumerProcessingException("Failed to assemble archive", e);
+            throw new UncheckedIOException("Failed to assemble archive for transfer " + transferId, e);
         }
     }
 
@@ -105,14 +99,14 @@ public class ChunkAssembler {
                         try {
                             Files.delete(path);
                         } catch (IOException e) {
-                            throw new UncheckedIOException(e);
+                            throw new UncheckedIOException("Failed to delete temporary file " + path, e);
                         }
                     });
 
             transfers.remove(transferId);
 
         } catch (IOException e) {
-            throw new ConsumerProcessingException("Failed to cleanup temporary files", e);
+            throw new UncheckedIOException("Failed to cleanup temporary files for transfer " + transferId, e);
         }
     }
 }
