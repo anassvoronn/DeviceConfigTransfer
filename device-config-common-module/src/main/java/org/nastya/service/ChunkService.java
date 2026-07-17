@@ -1,8 +1,8 @@
 package org.nastya.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.nastya.dto.DeviceConfigChunk;
 import org.nastya.dto.TransferState;
-import org.nastya.exception.ConsumerProcessingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,21 +12,49 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Service
-public class ChunkAssembler {
-
+public class ChunkService {
+    private final int chunkSize;
     private final Map<UUID, TransferState> transfers = new ConcurrentHashMap<>();
     private final Path tempDirectory;
 
-    public ChunkAssembler(
-            @Value("${configs.temp-directory}") String tempDirectory) {
+    public ChunkService(@Value("${configs.chunk-size}") int chunkSize,
+                        @Value("${configs.temp-directory}") String tempDirectory) {
+        this.chunkSize = chunkSize;
         this.tempDirectory = Path.of(tempDirectory);
+    }
+
+    public List<DeviceConfigChunk> split(String fileName, byte[] bytes) {
+        UUID transferId = UUID.randomUUID();
+
+        int totalChunks = (bytes.length + chunkSize - 1) / chunkSize;
+
+        List<DeviceConfigChunk> result = new ArrayList<>();
+
+        log.info("Chunk size = {}", chunkSize);
+
+        for (int i = 0; i < totalChunks; i++) {
+
+            int start = i * chunkSize;
+
+            int end = Math.min(start + chunkSize, bytes.length);
+
+            log.info("Chunk {} actual size = {}", i, end - start);
+
+            result.add(new DeviceConfigChunk(
+                    fileName,
+                    transferId,
+                    i,
+                    totalChunks,
+                    Arrays.copyOfRange(bytes, start, end)
+            ));
+        }
+
+        return result;
     }
 
     public Optional<UUID> addChunk(DeviceConfigChunk chunk) {
@@ -59,7 +87,7 @@ public class ChunkAssembler {
             return Optional.empty();
 
         } catch (IOException e) {
-            throw new ConsumerProcessingException("Failed to save chunk", e);
+            throw new IllegalArgumentException("Failed to save chunk", e);
         }
     }
 
@@ -86,7 +114,7 @@ public class ChunkAssembler {
             return zipFile;
 
         } catch (IOException e) {
-            throw new ConsumerProcessingException("Failed to assemble archive", e);
+            throw new IllegalArgumentException("Failed to assemble archive", e);
         }
     }
 
@@ -112,7 +140,7 @@ public class ChunkAssembler {
             transfers.remove(transferId);
 
         } catch (IOException e) {
-            throw new ConsumerProcessingException("Failed to cleanup temporary files", e);
+            throw new IllegalArgumentException("Failed to cleanup temporary files", e);
         }
     }
 }

@@ -12,6 +12,7 @@ spring:
 configs:
   input-directory: /input
   chunk-size: ${CHUNK_SIZE}
+  temp-directory: /tmp/chunks
 
 kafka:
   topic:

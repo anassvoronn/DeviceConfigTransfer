@@ -3,7 +3,7 @@ package org.nastya.kafka;
 import lombok.extern.slf4j.Slf4j;
 import org.nastya.dto.DeviceConfigChunk;
 import org.nastya.exception.ConsumerProcessingException;
-import org.nastya.service.ChunkAssembler;
+import org.nastya.service.ChunkService;
 import org.nastya.service.ZipService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,11 +17,11 @@ import java.util.UUID;
 @Slf4j
 public class DeviceConfigConsumer {
 
-    private final ChunkAssembler assembler;
+    private final ChunkService assembler;
     private final ZipService zipService;
     private final String outputDirectory;
 
-    public DeviceConfigConsumer(ChunkAssembler assembler,
+    public DeviceConfigConsumer(ChunkService assembler,
                                 ZipService zipService,
                                 @Value("${configs.output-directory}") String outputDirectory) {
         this.assembler = assembler;

@@ -18,5 +18,6 @@ kafka:
     device-config: device-config-topic
 
 configs:
+  chunk-size: ${CHUNK_SIZE}
   output-directory: /output
   temp-directory: /tmp/chunks
