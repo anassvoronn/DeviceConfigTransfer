@@ -46,8 +46,8 @@ services:
 
   producer:
     build:
-      context: ./device-config-producer
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /device-config-producer/Dockerfile
     volumes:
       - ./input:/input
     container_name: device-config-producer
@@ -66,8 +66,8 @@ services:
 
   consumer:
     build:
-      context: ./device-config-consumer
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /device-config-consumer/Dockerfile
     volumes:
       - ./output:/output
     container_name: device-config-consumer
@@ -80,8 +80,8 @@ services:
 
   parser:
     build:
-      context: ./device-config-parser
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /device-config-parser/Dockerfile
     volumes:
       - ./output:/output
     container_name: device-config-parser
