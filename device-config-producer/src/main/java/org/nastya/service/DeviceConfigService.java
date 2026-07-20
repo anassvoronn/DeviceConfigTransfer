@@ -20,17 +20,17 @@ public class DeviceConfigService {
     private final KafkaProducerService kafkaProducer;
     private final String configsDirectory;
     private final ZipService zipService;
-    private final ChunkService chunkService;
+    private final ChunkSplitter chunkSplitter;
 
     public DeviceConfigService(
             KafkaProducerService kafkaProducer,
             @Value("${configs.input-directory}") String configsDirectory,
             ZipService zipService,
-            ChunkService chunkService) {
+            ChunkSplitter chunkService) {
         this.kafkaProducer = kafkaProducer;
         this.configsDirectory = configsDirectory;
         this.zipService = zipService;
-        this.chunkService = chunkService;
+        this.chunkSplitter = chunkService;
     }
 
     public List<String> getAvailableConfigs() {
@@ -65,7 +65,7 @@ public class DeviceConfigService {
         try {
             byte[] zipBytes = zipService.zip(file);
 
-            List<DeviceConfigChunk> chunks = chunkService.split(fileName, zipBytes);
+            List<DeviceConfigChunk> chunks = chunkSplitter.split(fileName, zipBytes);
 
             for (DeviceConfigChunk chunk : chunks) {
                 kafkaProducer.send(chunk);
