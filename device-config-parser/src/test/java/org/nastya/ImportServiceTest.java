@@ -71,7 +71,7 @@ class ImportServiceTest {
 
     @Test
     public void shouldImportJsonTables() {
-        importService.importJson("device_config_test.json");
+        importService.importJson("../output/device_config_test.json");
 
         List<Host> hosts = hostsRepository.findAll();
 
