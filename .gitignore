@@ -42,3 +42,4 @@ build/
 /.idea/encodings.xml
 /.idea/misc.xml
 /.idea/vcs.xml
+/device-config-parser/src/test/resources/output/device_config_test.json
