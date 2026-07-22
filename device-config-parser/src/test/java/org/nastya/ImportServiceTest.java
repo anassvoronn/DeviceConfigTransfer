@@ -20,7 +20,11 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +66,7 @@ class ImportServiceTest {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
 
         registry.add("spring.jpa.show-sql", () -> "false");
         registry.add("logging.level.org.hibernate.SQL", () -> "OFF");
@@ -70,8 +74,16 @@ class ImportServiceTest {
     }
 
     @Test
-    public void shouldImportJsonTables() {
-        importService.importJson("../output/device_config_test.json");
+    public void shouldImportJsonTables() throws URISyntaxException {
+        Path jsonFile = Paths.get(
+                Objects.requireNonNull(
+                        getClass().getResource(
+                                "/output/device_config_test.json"
+                        )
+                ).toURI()
+        );
+
+        importService.importJson(jsonFile.toString());
 
         List<Host> hosts = hostsRepository.findAll();
 
